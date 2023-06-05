@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <script>
+    MathJax = {
+      tex: {
+        inlineMath: [
+          ['$', '$'],
+          ['\\(', '\\)']
+        ]
+      }
+    };
+  </script>
+  <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js">
+  </script>
+
+  <title>Neural Haircut: Prior-Guided Strand-Based Hair Reconstruction</title>
+
+  <!-- Bootstrap core CSS -->
+  <link href="static/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Custom fonts for this template -->
+  <link href="static/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"> 
+  <link href="https://fonts.googleapis.com/css?family=Lato:300,400,700,300italic,400italic,700italic" rel="stylesheet" type="text/css">
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <!-- Custom styles for this template -->
+  <link href="static/css/landing-page.min.css" rel="stylesheet">
+
+  <link rel="stylesheet" href="static/css/bulma.min.css">
+  <link rel="stylesheet" href="static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+
+  <!-- Bootstrap core JavaScript -->
+  <script src="static/vendor/bulma-carousel.min.js"></script>
+  <script src="static/vendor/jquery/jquery.min.js"></script>
+  <script src="static/vendor//bulma-slider.min.js"></script>
+  <script src="static/vendor/nerfies.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  
+	
+	
+	
+  <script type="module" src="https://unpkg.com/@google/model-viewer@2.0.1/dist/model-viewer.min.js"></script>
+  
+<!--   
+  
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-PYVRSFMDRL"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() {
+      dataLayer.push(arguments);
+    }
+    gtag('js', new Date());
+    gtag('config', 'G-PYVRSFMDRL');
+  </script>
+  <link href="https://fonts.googleapis.com/css?family=Google+Sans|Noto+Sans|Castoro"
+        rel="stylesheet">
+  <link rel="stylesheet" href="./static/css/bulma.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-carousel.min.css">
+  <link rel="stylesheet" href="./static/css/bulma-slider.min.css">
+  <link rel="stylesheet" href="./static/css/fontawesome.all.min.css">
+  <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/gh/jpswalsh/academicons@1/css/academicons.min.css">
+  <link rel="stylesheet" href="./static/css/index.css">
+  <link rel="icon" href="./static/images/favicon.svg">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script defer src="./static/js/fontawesome.all.min.js"></script>
+  <script src="./static/js/bulma-carousel.min.js"></script>
+  <script src="./static/js/bulma-slider.min.js"></script>
+  <script src="./static/js/index.js"></script>
+  
+  
+  
+  
+  
+  <meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Hello Bulma!</title>
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.4/css/bulma.min.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/css/bulma-carousel.min.css"> -->
+  
+  
+</head>
+<body>
+
+
+
+  <!-- Masthead -->
+  <!-- <header class="masthead text-center bg-light">
+  <div class="overlay"></div>
+    <div class="container">
+    <div class="row">
+      <div class="col-xl-10 mx-auto">
+          <h1 class="title is-1 publication-title">Realistic one-shot mesh-based head avatars</h1>
+    </div>
+  </div>
+  </div>
+  </header> -->
+
+  <section class="hero">
+    <div class="hero-body">
+
+    <div class="container has-text-centered">
+    <h1 class="title is-1 publication-title">
+      Neural Haircut: Prior-Guided Strand-Based Hair Reconstruction
+    </h1>
+    <div class="is-size-5 publication-authors">
+      <div class="author-block">
+        <div class="author-portrait">
+            <img class="img-fluid mb-3" src="static/images/vanessa.jpg" alt="" >
+        </div>
+        <a href="mailto:vanessa_sklyarova@phystech.edu">Vanessa Sklyarova</a><sup>1</sup></div>
+
+      <div class="author-block">
+        <div class="author-portrait">
+          <img class="img-fluid mb-3" src="static/images/jenya.png" alt="" >
+        </div>
+        <a href="">Jenya Chelishev</a><sup>2,*</sup></div>
+      <div class="author-block">
+        <div class="author-portrait">
+            <img class="img-fluid mb-2" src="static/images/andreea.jpg" alt="" >
+        </div>
+        <a href="">Andreea Dogaru</a><sup>3,*</sup></div>
+<!--      </p>-->
+      <div class="author-block">
+        <div class="author-portrait">
+          <img class="img-fluid mb-3" src="static/images/igor.jpg" alt="" >
+        </div>
+        <a href="">Igor Medvedev</a><sup>1</sup></div>
+      <div class="author-block">
+        <div class="author-portrait">
+          <img class="img-fluid mb-3" src="static/images/victor.jpg" alt="" >
+        </div>
+        <a href="https://scholar.google.ru/citations?user=gYYVokYAAAAJ">Victor Lempitsky</a><sup>4</sup></div>
+      <div class="author-block">
+        <div class="author-portrait">
+          <img class="img-fluid mb-3" src="static/images/egor.jpg" alt="" >
+        </div>
+        <a href="https://scholar.google.ru/citations?user=wyF-PxIAAAAJ">Egor Zakharov</a><sup>1</sup>
+      </div>
+
+    </div>
+  
+
+
+        <div class="is-size-5 publication-authors">
+          <span class="author-block"><sup>1</sup><a href="https://research.samsung.com/aicenter_moscow">Samsung AI Center</a></span><br>
+		<span class="author-block"><sup>2</sup><a> Rockstar Games</a></span><br>
+		<span class="author-block"><sup>3</sup><a>Friedrich-Alexander-Universitat</a></span><br>
+		<span class="author-block"><sup>4</sup><a>Cinemersive Labs</a></span><br>
+          <span class="author-block"><sup>*</sup><a>Work done at Samsung AI Center</a></span><br>
+        </div>
+
+ 
+ 
+          <div class="column has-text-centered">
+            <div class="publication-links">
+              <!-- PDF Link. -->
+              <span class="link-block">
+                <a href="https://arxiv.org/pdf/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                     <i class="fas fa-file-pdf"></i>
+                  </span>
+                  <span>Paper</span>
+                </a>
+              </span>
+              <span class="link-block">
+                <a href="https://arxiv.org/abs/2011.12948"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="ai ai-arxiv"></i>
+                  </span>
+                  <span>arXiv</span>
+                </a>
+              </span>
+              <!-- Video Link. -->
+              <span class="link-block">
+                <a href="https://youtu.be/d0-2W3pMU8A"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-youtube"></i>
+                  </span>
+                  <span>Video</span>
+                </a>
+              </span>
+              <!-- Code Link. -->
+              <span class="link-block">
+                <a href="https://github.com/SamsungLabs/NeuralHaircut"
+                   class="external-link button is-normal is-rounded is-dark">
+                  <span class="icon">
+                      <i class="fab fa-github"></i>
+                  </span>
+                  <span>Code soon...</span>
+                  </a>
+            </div>    
+		    
+
+<br>
+<section class="hero teaser">
+  <div class="container is-max-desktop">
+    <div class="hero-body">
+      <video id="teaser" autoplay muted loop playsinline height="80%">
+        <source src="./static/videos/jenya_teaser3.mp4"
+                type="video/mp4">
+      </video>
+       <h2 class="title has-text-centered">
+	Input&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Reconstruction
+	</h2>     
+      <h2 class="subtitle has-text-centered">
+        <span class="dnerf">Neural Haircut</span> reconstructs realistic strand-based geometry of human hair from monocular video or multiview images.
+      </h2>
+    </div>
+  </div>
+</section>
+	
+<div class="container">
+<div class="content  is-centered has-text-centered">
+<h3 class="title is-3">Video</h3>
+<iframe width="1000" height="562" src="https://www.youtube.com/embed/d0-2W3pMU8A" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+</div>
+
+
+  <section class="section">
+    <div class="container">
+
+
+      <div class="row">
+
+        <div class="is-centered">
+
+          <div class="content  is-centered has-text-centered">
+            <h2 class="title is-3">Abstract</h2>
+          </div>
+          
+
+          <div class="content has-text-justified">
+
+            <p class="lead mb-0" align="justify">
+              We propose an approach that can accurately reconstruct hair geometry at a strand level from a monocular video or multi-view images captured in uncontrolled lighting conditions. 
+              Our method has two stages, with the first stage performing joint reconstruction of coarse hair and bust shapes and hair orientation using implicit volumetric representations. 
+              The second stage then estimates a strand-level hair reconstruction by reconciling in a single optimization process the coarse volumetric constraints with hair strand and hairstyle priors learned from the synthetic data. 
+              To further increase the reconstruction fidelity, we incorporate image-based losses into the fitting process using a new differentiable renderer. 
+              The combined system, named Neural Haircut, achieves high realism and personalization of the reconstructed hairstyles.
+            </p>
+            <p class="lead mb-0" align="justify">
+            </p>
+            <p class="lead mb-0" align="justify">
+            </p>
+        </div>
+
+
+<br>
+        <div class="content has-text-centered">
+          <h2 class="title is-4">Main idea</h2>
+        </div>
+	<div class="content has-text-justified is-four-fifths">
+        <p>
+        We reconstruct the strand-based hair geometry in two stages. First, we obtain a <b>coarse volumetric hair reconstruction</b> in the form of implicit fields. Our second <b>strand-based reconstruction</b> stage is described below.
+	</p>	
+	</div>	  
+		
+        <div>
+          <center>
+            <div class="row">
+              <div class="offset-lg-2 col-lg-8 text-white">
+                <img class="img-fluid mb-3" src="static/images/optim.jpg" alt="" >
+              </div>
+            </div>
+        </div>
+
+      <div class="content has-text-justified is-four-fifths">
+        <p>
+        We reconstruct hair strands as a <em>geometry texture</em>. At each iteration, we sample a set of random embeddings from the texture and obtain corresponding hair strands using a pre-trained on synthetic data strand parametric model. These strands are supervised using geometric and rendering-based constraints. 
+	</p>	
+	<p>
+	The geometric loss $\mathcal{L}_\text{geom}$  makes sure that hair strands do not deviate from the volumetric reconstruction and have proper orientations.
+        </p>
+	<p>
+	The silhouette-based and neural rendering losses $\mathcal{L}_\text{render}$ utilize our proposed soft hair rasterization technique based on hair quads with learnable strand-based <em>appearance texture</em> to predict the silhouette and the RGB image.
+         </p>
+	 <p>
+         Lastly, $\mathcal{L}_\text{prior}$ acts as a regularization penalty that improves the physical plausibility of obtained strands using a pre-trained diffusion model. 
+         </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</section>
+<section class="hero">
+
+    <div class="hero-body">
+  </section>
+
+  <section class="section">
+   
+    <div class="container">
+      <div class="content  is-centered has-text-centered">
+        <h3 class="title is-3">Monocular video reconstructions</h3>
+      </div>
+      
+      
+<section class="hero is-light is-small length=1">
+  <div class="hero-body">
+    <div class="container">
+      <div id="results-carousel" class="carousel results-carousel">
+        <div class="item item-steve">
+          <video poster="" id="steve" autoplay controls muted loop playsinline width="60%">
+            <source src="./static/videos/compr_evgenia_cropped_30.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline width="60%">
+            <source src="./static/videos/compr_igor_cropped_30.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+        <div class="item item-shiba">
+          <video poster="" id="shiba" autoplay controls muted loop playsinline width="60%">
+            <source src="./static/videos/compr_jenya_cropped_30.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+	 <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline width="60%">
+            <source src="./static/videos/compr_ksyusha_cropped_32.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+	 <div class="item item-chair-tp">
+          <video poster="" id="chair-tp" autoplay controls muted loop playsinline width="60%">
+            <source src="./static/videos/compr_nastya_cropped_32.mp4"
+                    type="video/mp4">
+          </video>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+	   
+<script src="https://cdn.jsdelivr.net/npm/bulma-carousel@4.0.3/dist/js/bulma-carousel.min.js"></script>
+<script>
+bulmaCarousel.attach('#results-carousel', {
+	slidesToShow: 1,
+	infinite: false,
+	autoplay: false,
+	loop: true
+// 	https://bulma-carousel.onrender.com/
+});
+ </script>
+
+<br>	    
+
+	
+  <section class="section">
+    <div class="container">
+      <div class="content  is-centered has-text-centered">
+        <h3 class="title is-3">Multi-view reconstructions</h3>
+            <!-- <div class="row" > -->
+            <div class="column is-centered">
+                <div class="item is-centered">
+                  <video poster="" id="blocks" autoplay controls muted loop  height="50%">
+                    <source src="static/videos/full_comparison_cmpr_28_v1.mp4" type="video/mp4">
+                  </video>
+				    <h2 class="title has-text-centered">
+	Frontal view&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Back view&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNISURF&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NeuS&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DeepMVSHair&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Our&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+	</h2>  
+                </div>
+            </div>
+    </div>
+    
+<br>
+
+	
+
+  <!-- Footer -->
+  <footer class="footer bg-light">
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-6 h-100 text-center text-lg-left my-auto">
+          <p class="footer-text mb-4 mb-lg-0">Neural Haircut</p>
+
+          <div class="columns">
+            <div class="content footer-text col-lg-8 h-60">
+                This website is based on <a href="https://nerfies.github.io">nerfies</a>.
+            </div>
+          </div>
+          
+        </div>
+   
+      </div>
+    </div>
+
+
+  </footer>
+
+
+</body>
+
+</html>

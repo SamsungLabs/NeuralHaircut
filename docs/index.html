@@ -292,7 +292,7 @@
 
       <div class="content has-text-justified is-four-fifths">
         <p>
-        We reconstruct hair strands as a <em>geometry texture</em>. At each iteration, we sample a set of random embeddings from the texture and obtain corresponding hair strands using a pre-trained on synthetic data strand parametric model. These strands are supervised using geometric and rendering-based constraints. 
+        We reconstruct hair strands using <em>geometry texture</em>. At each iteration, we sample a set of random embeddings from the texture and obtain corresponding hair strands using a pre-trained on synthetic data strand parametric model. These strands are supervised using geometric and rendering-based constraints. 
 	</p>	
 	<p>
 	The geometric loss $\mathcal{L}_\text{geom}$  makes sure that hair strands do not deviate from the volumetric reconstruction and have proper orientations.
@@ -301,7 +301,7 @@
 	The silhouette-based and neural rendering losses $\mathcal{L}_\text{render}$ utilize our proposed soft hair rasterization technique based on hair quads with learnable strand-based <em>appearance texture</em> to predict the silhouette and the RGB image.
          </p>
 	 <p>
-         Lastly, $\mathcal{L}_\text{prior}$ acts as a regularization penalty that improves the physical plausibility of obtained strands using a pre-trained diffusion model. 
+         Lastly, $\mathcal{L}_\text{prior}$ acts as a regularization penalty that improves the physical plausibility of obtained strands using a pre-trained on synthetic hairstyles diffusion model. 
          </p>
         </div>
       </div>

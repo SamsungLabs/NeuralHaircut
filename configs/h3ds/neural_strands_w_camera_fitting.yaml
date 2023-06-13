@@ -1,0 +1,144 @@
+general: {
+    "base_exp_dir": "./exp/CASE_NAME/soft-blending_hair-sdf",
+    "recording": [
+        "./",
+        "./src/models"
+    ]
+}
+
+dataset: {
+    "data_dir":  "./implicit-hair-data/data/h3ds/CASE_NAME",
+    "render_cameras_name":  "cameras.npz",
+    "object_cameras_name":  "cameras.npz",
+    "orient_num_bins":  180,
+    "mask_based_ray_sampling":  false,
+    "mask_binarization_threshold":  0.5,
+    "path_to_mesh_prior":  "./implicit-hair-data/data/h3ds/CASE_NAME/head_prior_wo_eyes.obj",
+    "path_to_scale": '',
+    "fitted_camera_path": '',
+}
+
+train: {
+    "learning_rate": 0.0005,
+    "learning_rate_alpha": 0.05,
+    "end_iter": 500000,
+    "n_images_sampling": 32,
+    "bs_sampling": 32,
+
+    "batch_size": 1024,
+
+    "lr_cameras": 0.0001,
+    "tune_cameras_start": 0,
+    "tune_cameras_end": 20000,   
+
+    "batch_size": 1024,
+    "val_render_resolution_level": 2,
+    "val_mesh_resolution": 256,
+    "val_orients_resolution": 128,
+    "warm_up_end": 5000,
+    "anneal_end": 0,
+    "use_white_bkgd": true,
+
+    "save_freq": 1000,
+    "val_freq":  1000,
+    "val_orients_freq": 1000,
+    "val_mesh_freq": 1000,
+    "report_freq": 1000,
+
+    "binarize_gt_masks": true,
+
+    "igr_weight": 0.1,
+    "mask_weight": 0.1,
+    "hair_mask_weight": 0.1,
+    "orient_weight": 0.1,
+    "orient_use_conf": true,
+
+    "head_prior_reg_weight": 0.1,
+    "head_prior_off_sdf_weight": 0.01,
+    "head_prior_normal_weight": 0.01,
+    "head_prior_sdf_weight": 0.1,
+     
+    "pretrain_path": "./implicit-hair-data/data/h3ds/CASE_NAME/ckpt_final.pth",
+    "pretrain_strands_path": '',
+}
+
+model: {
+
+    nerf: {
+        "D": 8,
+        "d_in": 4,
+        "d_in_view": 3,
+        "W": 256,
+        "multires": 10,
+        "multires_view": 4,
+        "output_ch": 4,
+        "skips": [4],
+        "use_viewdirs": true, 
+        "start": 0, 
+        "end": 20000, 
+    },
+    
+    hair_sdf_network: {
+        "d_out":  260,
+        "d_in":  3,
+        "d_hidden":  256,
+        "n_layers":  8,
+        "n_layers_orient":  0,
+        "skip_in":  [4],
+        "multires":  8,
+        "bias":  0.5,
+        "scale":  1.0,
+        "geometric_init":  true,
+        "weight_norm":  true,
+        "start": 0, 
+        "end": 20000, 
+    },
+
+    hair_variance_network: {
+        "init_val":  0.3,
+    },
+
+    sdf_network: {
+        "d_out":  257,
+        "d_in":  3,
+        "d_hidden":  256,
+        "n_layers":  8,
+        "skip_in":  [4],
+        "multires":  6,
+        "bias":  0.5,
+        "scale":  1.0,
+        "geometric_init":  true,
+        "weight_norm":  true,
+        "start": 0, 
+        "end": 20000, 
+    },
+
+    variance_network: {
+        "init_val":  0.3,
+    },
+
+    rendering_network: {
+        "d_feature":  256,
+        "mode":  "idr",
+        "d_in":  9,
+        "d_out":  3,
+        "d_hidden":  256,
+        "n_layers":  4,
+        "weight_norm":  true,
+        "multires_view":  4,
+        "squeeze_out":  true,
+        "start": 0, 
+        "end": 20000, 
+    },
+
+    neus_renderer: {
+        "n_samples":  64,
+        "n_importance":  64,
+        "n_outside":  0,
+        "up_sample_steps":  4,    # 1 for simple coarse-to-fine sampling
+        "perturb":  1.0,
+        "blended_upsample":  true,
+        "head_prior_attraction":  true,
+    }
+}
+

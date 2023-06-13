@@ -1,0 +1,81 @@
+sdf_chamfer: {
+      "mesh_outer_hair": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/hair_outer.ply",
+      "mesh_outer_hair_remeshed": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/hair_outer_remeshed.ply",
+      "num_points": 10000,
+      }
+      
+textured_strands: {
+      "path_to_mesh": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/head_prior.obj",
+      "decoder_checkpoint_path": "./pretrained_models/strand_prior/strand_ckpt.pth",
+      "num_strands": 1900,
+      "max_num_strands": 100000,
+      "texture_size": 256,
+      "geometry_descriptor_size": 64,
+      "appearance_descriptor_size": 16,
+      "cut_scalp": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/cut_scalp_verts.pickle"
+  }
+
+diffusion_prior: {
+      "use_diffusion": true,
+      "start_denoise": 1,
+      "diffuse_mask": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/dif_mask.png",
+      "diffuse_bs": 32,
+      "dif_path": "./pretrained_models/diffusion_prior/dif_ckpt.pth",  
+       model: {
+          "type": "image_v1",
+          "input_channels": 64,
+          "input_size": [32, 32],
+          "patch_size": 1,
+          "mapping_out": 256,
+          "depths": [2, 4, 4],
+          "channels": [128, 256, 512],
+          "mapping_cond_dim": 0,
+          "unet_cond_dim": 0,
+          "cross_cond_dim": 0,
+          "cross_attn_depths": None,
+          "self_attn_depths": [false, false, false],
+          "has_variance": true,
+          "dropout_rate": 0.05,
+          "skip_stages": 0,
+          "augment_wrapper": false,
+          "augment_prob": 0.12,
+          "sigma_data": 0.5,
+          "sigma_min": 0.02,
+          "sigma_max": 40,
+          "sigma_sample_density": {
+              "type": "lognormal",
+                "mean": -1.2,
+                "std": 1.2
+            }
+      }
+  }
+  
+render: {
+    "use_render": true,
+    "image_size": 512,
+    "feat_size": 16,
+    "mesh_path": "./implicit-hair-data/data/DATASET_TYPE/CASE_NAME/head_prior.obj",
+    "num_strands": 1900,
+    "strands_len": 99,
+    "logging_freq": 500,
+    "out_channels": 3,
+    "use_orients_cond": true,
+    "use_silh": true,
+ }
+
+general: {
+    "lr": 0.001,
+    "starting_rendering_iter": 1,
+    "gamma": 0.5,
+    "milestones": [40000, 60000, 80000], 
+  }
+  
+loss_factors: {
+    "volume": 1.,
+    "orient": 0.01,
+    "chamfer": 1.,
+    "raster_silh": 0.00001,
+    "raster_l1": 0.001,
+    "raster_alpha": 0.0,
+    "L_diff": 0.001,
+  }

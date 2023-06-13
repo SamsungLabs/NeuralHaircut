@@ -1,0 +1,15 @@
+[submodule "NeuS"]
+	path = NeuS
+	url = https://github.com/Totoro97/NeuS.git
+[submodule "k-diffusion"]
+	path = k-diffusion
+	url = https://github.com/crowsonkb/k-diffusion.git
+[submodule "MODNet"]
+	path = MODNet
+	url = https://github.com/ZHKKKe/MODNet.git
+[submodule "CDGNet"]
+	path = CDGNet
+	url = https://github.com/tjpulkl/CDGNet.git
+[submodule "npbgpp"]
+	path = npbgpp
+	url = https://github.com/rakhimovv/npbgpp.git

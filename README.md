@@ -122,6 +122,18 @@ This work is based on the great project [NeuS](https://github.com/Totoro97/NeuS)
 ## Citation
 
 
+Cite as below if you find this repository is helpful to your project:
+
+```
+@inproceedings{sklyarova2023neural_haircut,
+title = {Neural Haircut: Prior-Guided Strand-Based Hair Reconstruction},
+author = {Sklyarova, Vanessa and Chelishev, Jenya and Dogaru, Andreea and Medvedev, Igor and Lempitsky, Victor and Zakharov, Egor},
+booktitle = {Proceedings of IEEE International Conference on Computer Vision (ICCV)},
+year = {2023}
+} 
+```
+
+
 
 
 

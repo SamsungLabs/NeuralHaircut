@@ -11,15 +11,11 @@ The full data folder is organized as follows:
             |-- case_name
                 |-- video_frames  # after parsing .mp4 (optional)
                 |-- colmap # (optional) 
-                    |-- full_res_image
-                    |-- cameras.npz
-                    |-- point_cloud.ply
                     |-- database.db
                     |-- sparse
-                    |-- dense
                     |-- sparse_txt
-
                 |-- cameras.npz    # camera parameters
+                |-- point_cloud.ply
                 |-- image
                 |-- mask
                 |-- hair_mask
@@ -47,7 +43,7 @@ The full data folder is organized as follows:
 ##### Run commands
 
 ```bash
-colmap automatic_reconstructor --workspace_path  CASE_NAME/colmap  --image_path CASE_NAME/video_frames
+colmap automatic_reconstructor --workspace_path  CASE_NAME/colmap  --image_path CASE_NAME/image --single_camera 1 --dense 0
 ```
 
 ```bash
@@ -59,16 +55,17 @@ mkdir CASE_NAME/colmap/sparse_txt && colmap model_converter --input_path CASE_NA
 ##### To postprocess COLMAP's output run:
 
 ```bash
-python colmap_parsing.py --path_to_scene  ./implicit-hair-data/data/SCENE_TYPE/CASE --save_path ./implicit-hair-data/data/SCENE_TYPE/CASE/colmap
+python preprocess_custom_data/colmap_parsing.py --path_to_scene  ./implicit-hair-data/data/SCENE_TYPE/CASE
 ```
 ##### Obtain:
 
-After this step you would obtain ```colmap/full_res_image, colmap/cameras.npz, colmap/point_cloud.ply```
+After this step you would obtain ```cameras.npz``` and ```point_cloud.ply``` in ```./implicit-hair-data/data/SCENE_TYPE/CASE```.
 
+Optionally you can run `verify_camera.py` to confirm that the camera parameters are correctly set.
 
 #### Step 2.  (Optional) Define the region of interests in obtained point cloud.
 
-Obtained ```colmap/point_cloud.ply``` is very noisy, so we are additionally define the region of interest using MeshLab and upload it to the current folder as ```point_cloud_cropped.ply```.
+Obtained ```point_cloud.ply``` is very noisy, so we are additionally define the region of interest using MeshLab and upload it to the current folder as ```point_cloud_cropped.ply```.
 
 
 #### Step 3. Transform cropped scene to lie in a unit sphere volume.
@@ -85,17 +82,21 @@ Note, now NeuralHaircut supports only the square images.
 
 #### Step 5. Obtain hair, silhouette masks and orientation and confidence maps.
 
+For the hair and silhouette masks, the following pretrained models are needed:
+- `modnet_photographic_portrait_matting.ckpt`: Download from this [Google Drive](https://drive.google.com/drive/folders/1umYmlCulvIFNaqPjwod1SayFmSRHziyR) and put it in `./MODNet/pretrained`
+- `LIP_epoch_149.pth`: Download from this [Google Drive](https://drive.google.com/drive/folders/1E9GutnsqFzF16bC5_DmoSXFIHYuU547L?usp=sharing) and put it in `./CDGNet/snapshots`
 
+Then run:
 ```bash
-python preprocess_custom_data/calc_masks.py --scene_path ./implicit-hair-data/data/SCENE_TYPE/CASE/ --MODNET_ckpt path_to_modnet --CDGNET_ckpt path_to_cdgnet
+python preprocess_custom_data/calc_masks.py --scene_path ./implicit-hair-data/data/SCENE_TYPE/CASE/
 ```
+After this step in```./implicit-hair-data/data/SCENE_TYPE/CASE``` you would obtain ```hair_mask``` and ```mask```.
 
-
+For the orientation and confidence maps, run:
 ```bash
 python preprocess_custom_data/calc_orientation_maps.py --img_path ./implicit-hair-data/data/SCENE_TYPE/CASE/image/ --orient_dir ./implicit-hair-data/data/SCENE_TYPE/CASE/orientation_maps --conf_dir ./implicit-hair-data/data/SCENE_TYPE/CASE/confidence_maps
 ```
-
-After this step in```./implicit-hair-data/data/SCENE_TYPE/CASE``` you would obtain ```hair_mask, mask, confidence_maps, orientation_maps```.
+After this step in```./implicit-hair-data/data/SCENE_TYPE/CASE``` you would obtain ```confidence_maps``` and ```orientation_maps```.
 
 
 #### Step 6. (Optional) Define views on which you want to train  and save it into views.pickle file.

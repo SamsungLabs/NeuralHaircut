@@ -285,6 +285,7 @@ dependencies:
       - icecream==2.1.3
       - imageio==2.27.0
       - importlib-resources==5.12.0
+      - joblib==1.3.2
       - jsonmerge==1.9.0
       - k-diffusion==0.0.12
       - kiwisolver==1.4.4

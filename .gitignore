@@ -127,3 +127,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+exps_first_stage/
+exps_second_stage/
+implicit-hair-data/
+pretrained_models/
+
+npbgpp/build/
+*/__pycache__/
+
+src/multiview_optimization/experiments/
+src/multiview_optimization/PIXIE/

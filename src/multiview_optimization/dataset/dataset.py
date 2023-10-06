@@ -96,7 +96,7 @@ class Multiview_dataset(Dataset):
         
 
         self.camera_model = None
-        if fitted_camera_path:
+        if fitted_camera_path and os.path.exists(fitted_camera_path):
             self.camera_model = OptimizableCameras(len(imgs_list), pretrain_path=fitted_camera_path)
             with torch.no_grad():
                 intrinsics_all, pose_all = self.camera_model(torch.arange(len(imgs_list)), intrinsics_all, pose_all)

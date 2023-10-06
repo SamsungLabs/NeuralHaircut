@@ -9,7 +9,7 @@ import os
 cfg = CN()
 
 abs_pixie_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-cfg.pixie_dir = '/Vol0/user/v.sklyarova/PIXIE/PIXIE'
+cfg.pixie_dir = './PIXIE'
 cfg.device = 'cuda'
 cfg.device_id = '0'
 cfg.pretrained_modelpath = os.path.join(cfg.pixie_dir, 'data', 'pixie_model.tar')

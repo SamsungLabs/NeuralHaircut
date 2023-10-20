@@ -33,7 +33,7 @@ import warnings
 warnings.filterwarnings("ignore")
     
 class Runner:
-    def __init__(self, conf_path, case='CASE_NAME', scene_type='DATASET_TYPE', checkpoint_name=None, hair_conf_path=None, exp_name=None):
+    def __init__(self, conf_path, case='CASE_NAME', scene_type='DATASET_TYPE', is_continue=False, checkpoint_name=None, hair_conf_path=None, exp_name=None):
         
         self.device = torch.device('cuda')
         
@@ -60,7 +60,14 @@ class Runner:
         if exp_name is not None:
             date, time = str(datetime.today()).split('.')[0].split(' ')
             exps_dir = Path('./exps_second_stage') / exp_name / case / Path(conf_path).stem
-            cur_dir = date + '_' + time   
+            if is_continue:
+                prev_exps = sorted(exps_dir.iterdir())
+                if len(prev_exps) > 0:
+                    cur_dir = prev_exps[-1].name
+                else:
+                    raise FileNotFoundError(errno.ENOENT, "No previous experiment in directory", exps_dir)
+            else:
+                cur_dir = date + '_' + time   
             self.base_exp_dir =  exps_dir / cur_dir        
         else:
             self.base_exp_dir = self.conf['general']['base_exp_dir']
@@ -78,6 +85,7 @@ class Runner:
         
         self.iter_step = 0
 
+        self.is_continue = is_continue
         self.writer = None
         set_seed(42)
 
@@ -95,7 +103,26 @@ class Runner:
         if train_conf['pretrain_strands_path']: 
             print('Upload strands!')
             self.hair_primitives_trainer.load_weights(train_conf['pretrain_hair_path'])
-           
+
+        # Load checkpoint
+        latest_model_name = None
+        if is_continue:
+            model_list_raw = os.listdir(os.path.join(self.base_exp_dir, 'hair_primitives'))
+            model_list = []
+            for model_name in model_list_raw:
+                if model_name[-3:] == 'pth' and int(model_name[5:-4]) <= self.end_iter:
+                    model_list.append(model_name)
+            model_list.sort()
+            if checkpoint_name is not None and checkpoint_name + ".pth" in model_list:
+                latest_model_name = checkpoint_name + ".pth"
+            else:
+                latest_model_name = model_list[-1]
+
+        if latest_model_name is not None:
+            logging.info('Find checkpoint: {}'.format(latest_model_name))
+            self.hair_primitives_trainer.load_weights(os.path.join(self.base_exp_dir, 'hair_primitives', latest_model_name))
+            self.iter_step = int(latest_model_name[5:-4])
+
         # Backup codes and configs for debug
         self.file_backup()
 
@@ -191,12 +218,13 @@ if __name__ == '__main__':
     parser.add_argument('--case', type=str, default='')
     parser.add_argument('--scene_type', type=str, default='')
     parser.add_argument('--hair_conf', type=str, default=None, help='Use hair primitives config')
+    parser.add_argument('--is_continue', action='store_true')
     parser.add_argument('--checkpoint', type=str, default=None, help='Checkpoint to continue training')
     parser.add_argument('--exp_name', type=str, default=None)
 
     args = parser.parse_args()
 
     torch.cuda.set_device(args.gpu)
-    runner = Runner(args.conf,  args.case, args.scene_type, hair_conf_path=args.hair_conf, checkpoint_name=args.checkpoint, exp_name=args.exp_name)
+    runner = Runner(args.conf,  args.case, args.scene_type, hair_conf_path=args.hair_conf, is_continue=args.is_continue, checkpoint_name=args.checkpoint, exp_name=args.exp_name)
 
     runner.train()

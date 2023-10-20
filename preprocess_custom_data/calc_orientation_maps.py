@@ -8,6 +8,7 @@ import os
 import tqdm
 import cv2
 import argparse
+from joblib import Parallel, delayed
 
 def rgb2gray(rgb):
     r, g, b = rgb[:,:,0], rgb[:,:,1], rgb[:,:,2]
@@ -25,23 +26,23 @@ def generate_gabor_filters(sigma_x, sigma_y, freq, num_filters):
     return kernels
 
 
-def calc_orients(img, kernels):
+def calc_orients(img, kernels, n_jobs):
     gray_img = rgb2gray(img)
     filtered_image = difference_of_gaussians(gray_img, 0.4, 10)
-    gabor_filtered_images = [ndi.convolve(filtered_image, kernels[i], mode='wrap') for i in range(len(kernels))]
+    gabor_filtered_images = list(Parallel(n_jobs=n_jobs, prefer="threads")(delayed(ndi.convolve)(filtered_image, kernels[i], mode='wrap') for i in range(len(kernels))))
     F_orients = np.abs(np.stack(gabor_filtered_images)) # abs because we only measure angle in [0, pi]
     return F_orients
 
 
-def calc_confidences(F_orients, orientation_map):
+def calc_confidences(F_orients, orientation_map, num_filters, n_jobs):
     orients_bins = np.linspace(0, math.pi * (num_filters - 1) / num_filters, num_filters)
-    orients_bins = orients_bins[:, None, None]
     
-    orientation_map = orientation_map[None]
-    
-    dists = np.minimum(np.abs(orientation_map - orients_bins), 
-                       np.minimum(np.abs(orientation_map - orients_bins - math.pi),
-                                  np.abs(orientation_map - orients_bins + math.pi)))
+    def calc_dists(i):
+        dists = np.abs(orientation_map - orients_bins[i])
+        dists = np.minimum(np.abs(orientation_map - orients_bins[i] - math.pi), dists)
+        dists = np.minimum(np.abs(orientation_map - orients_bins[i] + math.pi), dists)
+        return dists
+    dists = np.stack(Parallel(n_jobs=n_jobs, prefer="threads")(delayed(calc_dists)(i) for i in range(num_filters)))
         
     F_orients_norm = F_orients / F_orients.sum(axis=0, keepdims=True)
     
@@ -56,17 +57,17 @@ def main(args):
     
     kernels = generate_gabor_filters(args.sigma_x, args.sigma_y, args.freq, args.num_filters)
     
-    img_list = sorted(os.listdir(img_path))
+    img_list = sorted(os.listdir(args.img_path))
     for img_name in tqdm.tqdm(img_list):
         basename = img_name.split('.')[0]
-        img = np.array(Image.open(os.path.join(img_path, img_name)))
-        F_orients = calc_orients(img, kernels)
+        img = np.array(Image.open(os.path.join(args.img_path, img_name)))
+        F_orients = calc_orients(img, kernels, args.n_jobs)
         orientation_map = F_orients.argmax(0)
-        orientation_map_rad = orientation_map.astype('float16') / num_filters * math.pi
-        confidence_map = calc_confidences(F_orients, orientation_map_rad)
+        orientation_map_rad = orientation_map.astype('float16') / args.num_filters * math.pi
+        confidence_map = calc_confidences(F_orients, orientation_map_rad, args.num_filters, args.n_jobs)
 
-        cv2.imwrite(f'{orient_dir}/{basename}.png', orientation_map.astype('uint8'))
-        np.save(f'{conf_dir}/{basename}.npy', confidence_map.astype('float16'))
+        cv2.imwrite(f'{args.orient_dir}/{basename}.png', orientation_map.astype('uint8'))
+        np.save(f'{args.conf_dir}/{basename}.npy', confidence_map.astype('float16'))
 
 
         
@@ -80,6 +81,7 @@ if __name__ == "__main__":
     parser.add_argument('--sigma_y', default=2.4, type=float)
     parser.add_argument('--freq', default=0.23, type=float)
     parser.add_argument('--num_filters', default=180, type=int)
+    parser.add_argument('--n_jobs', default=8, type=int)
 
     args, _ = parser.parse_known_args()
     args = parser.parse_args()

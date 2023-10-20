@@ -124,6 +124,9 @@ def main(args):
     
     images = sorted(os.listdir(os.path.join(args.scene_path, 'image')))
     n_images = len(sorted(os.listdir(os.path.join(args.scene_path, 'image'))))
+
+    # Get image file extension
+    image_ext = os.path.splitext(images[0])[1]
     
     tens_list = []
     for i in range(n_images):
@@ -156,7 +159,8 @@ def main(args):
     state_dict = model.state_dict().copy()
     state_dict_old = torch.load(args.CDGNET_ckpt, map_location='cpu')
 
-    for key, nkey in zip(state_dict_old.keys(), state_dict.keys()):
+    state_dict_keys = list(state_dict.keys())
+    for key, nkey in zip(state_dict_old.keys(), state_dict_keys):
         if key != nkey:
             # remove the 'module.' in the 'key'
             state_dict[key[7:]] = deepcopy(state_dict_old[key])
@@ -174,11 +178,11 @@ def main(args):
     images = []
     masks = []
     for basename in basenames:
-        img = Image.open(os.path.join(args.scene_path, 'image', basename + '.jpg'))
+        img = Image.open(os.path.join(args.scene_path, 'image', basename + image_ext))
         raw_images.append(np.asarray(img))
         img = transform(img.resize(input_size))[None]
         img = torch.cat([img, torch.flip(img, dims=[-1])], dim=0)
-        mask = np.asarray(Image.open(os.path.join(args.scene_path, 'mask', basename + '.jpg')))
+        mask = np.asarray(Image.open(os.path.join(args.scene_path, 'mask', basename + '.png')))
         images.append(img)
         masks.append(mask)
 
@@ -188,7 +192,7 @@ def main(args):
     for i in range(len(images)):
         hair_mask = np.asarray(Image.fromarray((parsing_preds[i] == 2)).resize(image_size, Image.BICUBIC))
         hair_mask = hair_mask * masks[i]
-        Image.fromarray(hair_mask).save(os.path.join(args.scene_path, 'hair_mask', basenames[i] + '.jpg'))
+        Image.fromarray(hair_mask).save(os.path.join(args.scene_path, 'hair_mask', basenames[i] + '.png'))
    
     print('Results saved in folder: ', os.path.join(args.scene_path, 'hair_mask'))
         
@@ -197,7 +201,7 @@ if __name__ == "__main__":
 
     parser.add_argument('--scene_path', default='./implicit-hair-data/data/h3ds/168f8ca5c2dce5bc/', type=str)
     parser.add_argument('--MODNET_ckpt', default='./MODNet/pretrained/modnet_photographic_portrait_matting.ckpt', type=str)
-    parser.add_argument('--CDGNET_ckpt', default='./cdgnet/snapshots/LIP_epoch_149.pth', type=str)
+    parser.add_argument('--CDGNET_ckpt', default='./CDGNet/snapshots/LIP_epoch_149.pth', type=str)
 
     args, _ = parser.parse_known_args()
     args = parser.parse_args()

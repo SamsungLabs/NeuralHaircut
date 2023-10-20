@@ -90,7 +90,7 @@ def main(args):
         if face[0] in full_scalp_list and face[1] in full_scalp_list and  face[2] in full_scalp_list:
             faces_masked.append(torch.tensor([d[int(face[0])], d[int(face[1])], d[int(face[2])]]))
 #         print(faces_masked, full_scalp_list)
-        save_obj(os.path.join(save_path, 'scalp.obj'), scalp_mesh.verts_packed()[full_scalp_list], torch.stack(faces_masked))
+    save_obj(os.path.join(save_path, 'scalp.obj'), scalp_mesh.verts_packed()[full_scalp_list], torch.stack(faces_masked))
 
     with open(os.path.join(save_path, 'cut_scalp_verts.pickle'), 'wb') as f:
         pickle.dump(list(torch.tensor(sorted_idx).detach().cpu().numpy()), f)
